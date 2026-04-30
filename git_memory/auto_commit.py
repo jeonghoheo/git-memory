@@ -317,7 +317,7 @@ def write_to_git_memory(
         prefix = CONFIG.get("git", {}).get("commit_prefix", "Auto-save:")
         msg = f"{prefix} session {session_id} ({session_date})\n\n"
         # Add insights preview (extracted from categories)
-        insights_list = []
+        insights_list: List[str] = []
         for cat_key, items in categories.items():
             for item in items[:3]:  # Top 3 items per category
                 content_text = item.get("content", "")
@@ -334,7 +334,7 @@ def write_to_git_memory(
         if insights_list:
             msg += f"Categories: {', '.join(categories.keys())} ({len(insights_list)} insights)\n\n"
             msg += "Insights preview:\n"
-            for insight in insights_list[:5]:  # Max 5 total
+            for insight in insights_list[:5]:  # type: ignore
                 msg += f"  • {insight}\n"
         else:
             msg += f"Categories: {', '.join(categories.keys())}\n"
