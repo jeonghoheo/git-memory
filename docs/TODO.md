@@ -130,7 +130,7 @@
   - semantic search (예: "학습 관련 개념" → 관련 파일 모두)
 
 - [ ] **RAG (Retrieval-Augmented Generation)**
-  - Hermes Agent가 git_memory 자동 참조
+  - Iskra Agent가 git_memory 자동 참조
   - `/ask` 명령어: "학습 관련 표현 저장한 거 보여줘"
   - 자동 검색 + 답변 생성
 
@@ -142,7 +142,7 @@
   - CI/CD 파이프라인 통합
 
 - [ ] **멀티유저 지원**
-  - 여러 Hermes Agent가 같은 저장소 공유
+  - 여러 Iskra Agent가 같은 저장소 공유
   - user_id 태그 제공
   - 충돌 해결 전략 개선
 

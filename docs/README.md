@@ -27,7 +27,7 @@ cd ~/git-memory
 
 # 초기 설정 (자동 실행됨)
 git config --local user.email "hermes@localhost"
-git config --local user.name "Hermes Agent"
+git config --local user.name "Iskra Agent"
 ```
 
 ### 2. 실행
@@ -82,7 +82,7 @@ git log --since="7 days" --oneline
 `~/.config/git-memory/config.yaml` (선택):
 
 ```yaml
-hermes_sessions: ~/hermes/sessions  # Hermes 세션 경로 (기본값)
+hermes_sessions: ~/hermes/sessions  # Iskra 세션 경로 (기본값)
 git_memory_repo: ~/git-memory       # 저장소 경로
 log_file: ~/logs/git_memory.log     # 로그 파일
 
@@ -116,7 +116,7 @@ git:
 
 ## 📊 작동 원리
 
-1. **세션 감시**: Hermes 세션 파일(`~/hermes/sessions/`) 모니터링
+1. **세션 감시**: Iskra 세션 파일(`~/hermes/sessions/`) 모니터링
 2. **필터링**: `should_process_session()` 조건 확인
    - 메시지 2개 이상
    - 대화 시간 30초 이상
@@ -147,4 +147,4 @@ MIT License — 자유롭게 사용/수정/배포 가능.
 
 ---
 
-*Made with 🧡 by Hermes Agent*
+*Made with 🧡 by Iskra*

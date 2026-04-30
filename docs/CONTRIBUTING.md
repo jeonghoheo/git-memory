@@ -11,7 +11,7 @@
 - macOS 11+ (Big Sur 이상)
 - Python 3.11+
 - Git 2.30+
-- Hermes Agent 설치 완료
+- Iskra Agent 설치 완료
 
 ### **개발 환경 설정**
 
@@ -87,7 +87,7 @@ hermes/
 │   ├── healthcheck.py              # 헬스체크
 │   └── ...
 ├── logs/                           # 로그 디렉토리
-├── sessions/                       # Hermes 세션 JSON
+├── sessions/                       # Iskra 세션 JSON
 └── config.yaml                     # 설정
 
 git-memory/
@@ -158,7 +158,7 @@ Co-Authored-By: Claude Opus 4.7 <noreply@anthropic.com>
 **환경:**
 - macOS: [버전]
 - Python: [버전]
-- Hermes Agent: [버전]
+- Iskra Agent: [버전]
 
 **로그:**
 [git_memory.log 관련 부분]

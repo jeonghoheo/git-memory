@@ -345,7 +345,7 @@ mkdir -p ~/git-memory
 cd ~/git-memory
 git init
 git config user.email "hermes@localhost"
-git config user.name "Hermes Agent"
+git config user.name "Iskra Agent"
 ```
 
 ---

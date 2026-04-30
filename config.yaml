@@ -1,0 +1,75 @@
+# Hermes Git Memory Configuration
+
+# 경로 설정
+hermes_sessions: ~/hermes/sessions
+git_memory_repo: ~/hermes_git_memory
+log_file: ~/hermes/logs/git_memory.log
+processed_marker: ~/.hermes/last_git_memory_session.txt
+
+# 커밋 임계값
+min_messages: 5          # 최소 메시지 수
+min_duration_seconds: 120  # 최소 세션 시간 (2분)
+
+# 키워드 필터링
+keywords:
+  wedding:
+    - wedding
+    - venue
+    - 결혼
+    - 예식
+    - 신혼여행
+    - 하객
+    - 웨딩드레스
+    - bouquet
+    - ring
+    - photographer
+    - budget
+    - catering
+    - timeline
+    - 초대
+    - 예물
+  russian:
+    - russian
+    - 러시아어
+    - verb
+    - aspect
+    - нсв
+    - св
+    - imperfective
+    - perfective
+    - case
+    - prepositional
+    - stress
+    - ударение
+    - grammar
+    - vocabulary
+    - писать
+    - написать
+
+# 카테고리 매핑 (키워드 → 카테고리/서브카테고리)
+category_rules:
+  - keywords: [wedding, venue, 예식, 웨딩드레스, ring, photographer, budget]
+    category: wedding
+    subcategory: plans
+  - keywords: [russian, 러시아어, verb, aspect, case, stress, grammar]
+    category: russian
+    subcategory: grammar
+  - keywords: [contact, 사람, 연락, 이름]
+    category: people
+    subcategory: contacts
+  - keywords: [project, 프로젝트, task, 할일]
+    category: projects
+    subcategory: tasks
+
+# Git 설정
+git:
+  user_name: Hermes Agent
+  user_email: hermes@localhost
+  auto_add: true
+  commit_prefix: "Auto-save:"
+
+# 로깅
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  max_bytes: 10485760  # 10MB
+  backup_count: 5

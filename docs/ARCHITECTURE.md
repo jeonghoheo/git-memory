@@ -8,7 +8,7 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    Hermes Agent                             │
+│                    Iskra Agent                             │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐ │
 │  │ 세션 파일   │  │ 메시지      │  │ 인사이트 추출       │ │
 │  │ *.json     │→ │ 필터링     │→ │ extract_insights()  │ │
@@ -198,7 +198,7 @@ git-memory/
 ```
 
 - **실행 주기**: 5분 (`StartInterval: 300`)
-- **환경변수**: `PYTHONPATH=~/hermes` (또는 Hermes Agent 설치 경로)
+- **환경변수**: `PYTHONPATH=~/hermes` (또는 Iskra Agent 설치 경로)
 - **실행 경로**: 시스템 Python 경로 (예: `/usr/bin/python3` 또는 `python3`)
 - **실행 인자**: `python3 ~/hermes/scripts/git_memory_auto_commit.py`
 

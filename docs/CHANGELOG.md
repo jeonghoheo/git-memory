@@ -15,7 +15,7 @@ Git Memory 변경 이력.
 ### Changed
 - `analyze_session()` 호출 제거 (NameError 버그 패치)
 - launchd plist: `LimitLoadToSessionType` 제거, PYTHONPATH 명시적 설정
-- Hermes 저장소 Git으로 초기화
+- Iskra 저장소 Git으로 초기화
 
 ### Fixed
 - `is_processed` NameError (analyze_session 미구현 버그)
