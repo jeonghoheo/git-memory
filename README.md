@@ -6,6 +6,8 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://pypi.org/project/git-memory/)
 [![CI](https://img.shields.io/github/actions/workflow/status/jeonghoheo/git-memory/ci.yml?branch=main)](https://github.com/jeonghoheo/git-memory/actions)
+[![Coverage](https://img.shields.io/badge/coverage-unknown-yellow)](https://github.com/jeonghoheo/git-memory/actions)
+[![Quality](https://img.shields.io/badge/quality-mypy%2B%20black%2B%20ruff-blue)](https://github.com/jeonghoheo/git-memory/actions)
 
 Git Memory는 AI 어시스턴트와의 대화를 자동으로 Git 저장소에 저장하고,
 카테고리별로 분류하여 검색 가능하게 하는 경량 도구입니다.

@@ -32,3 +32,6 @@ Thumbs.db
 
 # Hermes integration (optional)
 ~/.hermes/last_git_memory_processed
+
+# Obsidian workspace (local)
+.obsidian/workspace.json
