@@ -131,7 +131,7 @@ keywords:
     - писать
     - написать
     - verb aspect
-    -Word boundary matching with word boundaries for precise categorization
+    # Word boundary matching ensures keyword boundaries (\bkeyword\b)
 
   # 프로젝트/작업 (Projects & Tasks)
   projects:
