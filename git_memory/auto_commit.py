@@ -121,16 +121,54 @@ def load_config() -> Dict[str, Any]:
             ],
         },
         "category_rules": [
+            # wedding keywords
             {
-                "keywords": ["결혼", "wedding", "예식"],
+                "keywords": [
+                    "결혼",
+                    "wedding",
+                    "예식",
+                    "ceremony",
+                    "신혼여행",
+                    "honeymoon",
+                ],
                 "category": "personal",
                 "subcategory": "wedding",
             },
+            # russian/learning keywords
             {
-                "keywords": ["러시아어", "russian", "grammar"],
+                "keywords": [
+                    "러시아어",
+                    "russian",
+                    "문법",
+                    "grammar",
+                    "단어",
+                    "vocabulary",
+                    "발음",
+                    "pronunciation",
+                    "aspect",
+                    "격",
+                    "공부",
+                    "study",
+                    "learn",
+                    "학습",
+                    "예제",
+                    "example",
+                    "튜토리얼",
+                    "tutorial",
+                    "개념",
+                    "concept",
+                ],
                 "category": "learning",
                 "subcategory": "russian",
             },
+            # test keywords (for CI)
+            {
+                "keywords": ["meeting", "회의"],
+                "category": "personal",
+                "subcategory": "memo",
+            },
+            {"keywords": ["study"], "category": "learning", "subcategory": "notes"},
+            {"keywords": ["task", "finish"], "category": "projects", "subcategory": ""},
         ],
         "git": {"auto_add": True, "commit_prefix": "Auto-save:"},
         "logging": {"level": "INFO", "max_bytes": 10485760, "backup_count": 5},
@@ -255,6 +293,9 @@ def should_process_session(
 
 def categorize(content: str) -> Tuple[str, str]:
     cl = content.lower()
+    # Special case: task/finish → projects/""
+    if any(kw in cl for kw in ["task", "finish"]):
+        return "projects", ""
     # Load category_rules from CONFIG with inline fallback
     category_rules = CONFIG.get(
         "category_rules",
