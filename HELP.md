@@ -5,18 +5,34 @@
 ### `git-memory`
 AI 세션을 자동 저장하는 메인 명령어.
 
+#### 사용법
 ```bash
-# 수동 실행 (한 번만)
+git-memory [OPTIONS]
+```
+
+#### 옵션
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--dry-run` | 실제 Git 커밋 없이 시뮬레이션 | `False` |
+| `--verbose` | 상세 로그 출력 (DEBUG 레벨) | `False` |
+| `--force` | 이미 커밋된 세션 강제 재처리 | `False` |
+| `--config` | 설정 파일 경로 출력 | - |
+| `--version` | 버전 정보 출력 | - |
+| `--help` | 도움말 출력 | - |
+
+#### 예시
+```bash
+# 기본 실행 (가장 최신 세션 처리)
 git-memory
 
-# 설정 파일 경로 확인
-git-memory --config
+# 상세 로그와 함께 실행
+git-memory --verbose
 
-# 버전 확인
-git-memory --version
+# 이미 커밋된 세션 다시 처리
+git-memory --force
 
-# 도움말
-git-memory --help
+# 테스트: 실제 커밋 없이 확인
+git-memory --dry-run --verbose
 ```
 
 **환경변수:**

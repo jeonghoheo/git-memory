@@ -109,7 +109,7 @@ git:
 ### Usage
 
 ```bash
-# 기본 실행 (가장 최신 세션 자동 처리)
+# 기본 실행 (가장 최신 세션 처리)
 git-memory
 
 # 상세 로그 출력
@@ -118,12 +118,18 @@ git-memory --verbose
 # 이미 커밋된 세션 강제 재처리
 git-memory --force
 
-# dry-run 모드 (실제 Git 커밋 없이 시뮬레이션)
+# 실제 Git 커밋 없이 시뮬레이션 (테스트용)
 git-memory --dry-run
-
-# 도움말
-git-memory --help
 ```
+
+**CLI Options**
+
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--dry-run` | 실제 Git 커밋 없이 시뮬레이션 | `False` |
+| `--verbose` | 상세 로그 출력 (DEBUG 레벨) | `False` |
+| `--force` | 이미 커밋된 세션 강제 재처리 | `False` |
+| `--help` | 도움말 출력 | - |
 
 저장소는 자동으로 `personal/`, `learning/`, `projects/`, `wedding/` 디렉토리를 생성하고
 세션에서 추출한 인사이트를 Markdown 파일로 저장합니다.
