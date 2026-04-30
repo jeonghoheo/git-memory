@@ -2,6 +2,10 @@
 
 > Automatic AI Session Memory Storage — Git 기반 AI 대화 자동 저장
 
+[![pip install](https://img.shields.io/badge/pip%20install-git--memory-blue)](https://pypi.org/project/git-memory/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue)](https://pypi.org/project/git-memory/)
+
 Git Memory는 AI 어시스턴트와의 대화를 자동으로 Git 저장소에 저장하고,
 카테고리별로 분류하여 검색 가능하게 하는 경량 도구입니다.
 
