@@ -121,20 +121,9 @@ def load_config() -> Dict[str, Any]:
             ],
         },
         "category_rules": [
-            # wedding keywords
-            {
-                "keywords": [
-                    "결혼",
-                    "wedding",
-                    "예식",
-                    "ceremony",
-                    "신혼여행",
-                    "honeymoon",
-                ],
-                "category": "personal",
-                "subcategory": "wedding",
-            },
-            # russian/learning keywords
+            # test keywords - study first (before russian)
+            {"keywords": ["study"], "category": "learning", "subcategory": "notes"},
+            # russian specific ( nur russian-related keywords)
             {
                 "keywords": [
                     "러시아어",
@@ -147,28 +136,31 @@ def load_config() -> Dict[str, Any]:
                     "pronunciation",
                     "aspect",
                     "격",
-                    "공부",
-                    "study",
-                    "learn",
-                    "학습",
-                    "예제",
-                    "example",
-                    "튜토리얼",
-                    "tutorial",
-                    "개념",
-                    "concept",
                 ],
                 "category": "learning",
                 "subcategory": "russian",
             },
-            # test keywords (for CI)
+            # personal keywords
             {
                 "keywords": ["meeting", "회의"],
                 "category": "personal",
                 "subcategory": "memo",
             },
-            {"keywords": ["study"], "category": "learning", "subcategory": "notes"},
+            # project keywords
             {"keywords": ["task", "finish"], "category": "projects", "subcategory": ""},
+            # wedding
+            {
+                "keywords": [
+                    "결혼",
+                    "wedding",
+                    "예식",
+                    "ceremony",
+                    "신혼여행",
+                    "honeymoon",
+                ],
+                "category": "personal",
+                "subcategory": "wedding",
+            },
         ],
         "git": {"auto_add": True, "commit_prefix": "Auto-save:"},
         "logging": {"level": "INFO", "max_bytes": 10485760, "backup_count": 5},
