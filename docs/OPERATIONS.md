@@ -361,3 +361,80 @@ git config user.name "Iskra Agent"
 ---
 
 *Operations version: 1.0 — April 2026*
+
+---
+
+## 🔄 CI/CD (GitHub Actions)
+
+### workflow 실행 확인
+
+```bash
+# GitHub Actions 대시보드
+open https://github.com/jeonghoheo/git-memory/actions
+
+# CLI로 최근 실행 확인
+gh run list --workflow=ci.yml
+```
+
+### workflow 수동 트리거
+
+```bash
+# workflow_dispatch가 설정된 경우
+gh workflow run ci.yml
+
+# 또는 커밋으로 트리거
+git commit --allow-empty -m "Trigger CI"
+git push origin main
+```
+
+### 테스트 실패 시 로컬 검증
+
+```bash
+# 1. 동일 명령어 로컬 실행
+pytest -v
+
+# 2. lint 문제 수정
+pip install black ruff
+black git_memory/
+ruff check git_memory/ --fix
+
+# 3. 다시 커밋
+git add .
+git commit -m "Fix CI errors"
+git push origin main
+```
+
+### workflow 파일 편집
+
+`.github/workflows/ci.yml`을 수정한 후:
+```bash
+git add .github/workflows/ci.yml
+git commit -m "Update CI: add coverage"
+git push origin main
+```
+
+변경사항은 다음 push부터 적용됩니다.
+
+### GitHub CLI 설치 (선택)
+
+```bash
+# macOS
+brew install gh
+
+# 인증
+gh auth login
+```
+
+---
+
+## 📊 메트릭스
+
+| 지표 | 명령어 | 설명 |
+|------|--------|------|
+| 저장소 크기 | `du -sh ~/git-memory` | 디스크 사용량 |
+| 커밋 수 | `git rev-list --count HEAD` | 전체 커밋 수 |
+| 최근 활동 | `git log --since="1 day" --oneline` | 오늘 커밋 |
+
+---
+
+*Last updated: 2026-04-30 | 버전: 0.1.1*

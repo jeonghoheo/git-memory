@@ -5,6 +5,22 @@ Git Memory 변경 이력.
 
 ---
 
+## [0.1.1] — 2026-04-30 (current)
+
+### Added
+- GitHub Actions CI/CD workflow (`.github/workflows/ci.yml`)
+  - Automated pytest test execution on every push
+  - Linting with ruff and black
+  - Two-job pipeline: `test` + `lint`
+- Unit tests for `git_memory` package
+  - `test_auto_commit.py`: `load_config()` tests
+  - `test_init.py`: package initialization tests
+- CI badge in README
+
+### Changed
+- `requirements.txt`: pytest added to dev dependencies
+
+---
 ## [Unreleased]
 
 ### Added

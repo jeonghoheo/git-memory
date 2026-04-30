@@ -16,14 +16,17 @@ Features:
 from __future__ import annotations
 import os
 import re
+import argparse
 import json
 import logging
 import subprocess
 import sys
+import argparse
 import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
+from . import __version__  # package version
 import yaml
 from logging.handlers import RotatingFileHandler
 
@@ -53,10 +56,15 @@ GIT_MEMORY = Path(CONFIG.get("git_memory_repo", Path.home() / "git-memory")).exp
 LOG_FILE = Path(CONFIG.get("log_file", Path.home() / "logs" / "git_memory.log")).expanduser()
 PROCESSED_MARKER = Path(CONFIG.get("processed_marker", Path.home() / ".git-memory" / "last_processed.txt")).expanduser()
 
-# Keywords from config
-PERSONAL_KEYWORDS = [kw.lower() for kw in CONFIG.get("keywords", {}).get("personal", ["meeting", "planning", "decision"])]
-LEARNING_KEYWORDS = [kw.lower() for kw in CONFIG.get("keywords", {}).get("learning", ["study", "learn", "concept"])]
-IMPORTANT_KEYWORDS = PERSONAL_KEYWORDS + LEARNING_KEYWORDS
+# Keywords from config — aggregate ALL categories for importance detection
+PERSONAL_KEYWORDS = [kw.lower() for kw in CONFIG.get("keywords", {}).get("personal", [])]
+LEARNING_KEYWORDS = [kw.lower() for kw in CONFIG.get("keywords", {}).get("learning", [])]
+# Include all remaining categories (projects, wedding, etc.)
+ALL_KEYWORDS = []
+for cat_name, kw_list in CONFIG.get("keywords", {}).items():
+    if cat_name not in ("personal", "learning"):
+        ALL_KEYWORDS.extend([kw.lower() for kw in kw_list])
+IMPORTANT_KEYWORDS = PERSONAL_KEYWORDS + LEARNING_KEYWORDS + ALL_KEYWORDS
 
 CATEGORY_RULES = CONFIG.get("category_rules", [
     {"keywords": PERSONAL_KEYWORDS, "category": "personal", "subcategory": "memo"},
@@ -142,7 +150,8 @@ def should_process_session(session_file: Path, messages: List[Dict]) -> Tuple[bo
 def categorize(content: str) -> Tuple[str, str]:
     cl = content.lower()
     for rule in CATEGORY_RULES:
-        if any(kw in cl for kw in rule.get("keywords", [])):
+        keywords = rule.get("keywords", [])
+        if any(re.search(r'\b' + re.escape(kw) + r'\b', cl) for kw in keywords):
             return rule.get("category", "daily"), rule.get("subcategory", "notes")
     return "daily", "notes"
 
@@ -204,7 +213,7 @@ def is_processed(session_file: Path) -> bool:
     except:
         return False
 
-def write_to_git_memory(session_file: Path, insights: List[Dict]) -> bool:
+def write_to_git_memory(session_file: Path, insights: List[Dict], dry_run: bool = False) -> bool:
     try:
         data = json.loads(session_file.read_text())
         session_id = data["session_id"]
@@ -212,6 +221,9 @@ def write_to_git_memory(session_file: Path, insights: List[Dict]) -> bool:
     except Exception as e:
         logger.error(f"Failed to parse session metadata: {e}")
         return False
+
+    if dry_run:
+        logger.info("🌊 DRY-RUN mode: no git operations will be performed")
     
     # Prevent duplicate commits
     if already_committed(session_id):
@@ -256,7 +268,7 @@ def write_to_git_memory(session_file: Path, insights: List[Dict]) -> bool:
         filepath.write_text(content)
         files_written.append(str(filepath))
         
-        if CONFIG.get("git", {}).get("auto_add", True):
+        if not dry_run and CONFIG.get("git", {}).get("auto_add", True):
             success, _ = run_git_command(["add", str(filepath.relative_to(GIT_MEMORY))])
             if not success:
                 logger.error(f"Failed to add {filepath} to git index")
@@ -264,6 +276,8 @@ def write_to_git_memory(session_file: Path, insights: List[Dict]) -> bool:
                 for f in files_written[:-1]:  # All except current
                     run_git_command(["reset", "HEAD", str(f)])
                 return False  # operation failed
+        elif dry_run:
+            logger.info(f"  [DRY-RUN] Would run: git add {filepath.relative_to(GIT_MEMORY)}")
     
     if files_written:
         prefix = CONFIG.get("git", {}).get("commit_prefix", "Auto-save:")
@@ -289,24 +303,42 @@ def write_to_git_memory(session_file: Path, insights: List[Dict]) -> bool:
         
         msg += f"Files: {', '.join(Path(f).name for f in files_written)}"
         
-        success, output = run_git_command(["commit", "-m", msg])
-        if success:
-            logger.info(f"✅ Committed {len(files_written)} files: {', '.join(Path(f).name for f in files_written)}")
-            mark_processed(session_file)
-            return True   # successfully committed
+        if dry_run:
+            logger.info(f"  [DRY-RUN] Would commit with message:\n{msg}")
+            logger.info(f"  [DRY-RUN] Would commit {len(files_written)} files: {', '.join(Path(f).name for f in files_written)}")
+            # In dry-run, don't actually commit or mark processed
+            return True
         else:
-            logger.error(f"Git commit failed: {output}")
-            # Rollback
-            for f in files_written:
-                run_git_command(["reset", "HEAD", str(f)])
-            return False  # operation failed
+            success, output = run_git_command(["commit", "-m", msg])
+            if success:
+                logger.info(f"✅ Committed {len(files_written)} files: {', '.join(Path(f).name for f in files_written)}")
+                mark_processed(session_file)
+                return True   # successfully committed
+            else:
+                logger.error(f"Git commit failed: {output}")
+                # Rollback
+                for f in files_written:
+                    run_git_command(["reset", "HEAD", str(f)])
+                return False  # operation failed
     else:
         logger.info("ℹ️  No insights to commit")
         return True
 
 # ── 메인 루프 ─────────────────────────────────────────────────────────────────
-def main() -> int:
+def main(dry_run: bool = False, force: bool = False) -> int:
+    """Main entry point for git-memory auto-commit.
+    
+    Args:
+        dry_run: If True, only print what would be done without touching git.
+        force: If True, process the latest session even if already processed.
+    
+    Returns:
+        0 on success, 1 on error.
+    """
     logger.info("=== Git Memory Auto-Commit Started ===")
+    
+    if dry_run:
+        logger.info("🌊 DRY-RUN mode: simulating operations without changes")
     
     if not HERMES_SESSIONS.exists():
         logger.error(f"AI assistant sessions directory missing: {HERMES_SESSIONS}")
@@ -328,51 +360,84 @@ def main() -> int:
     messages = load_transcript(session_file)
     if not messages:
         logger.warning(f"Empty or invalid transcript: {session_file.name}")
-        mark_processed(session_file)
+        if not dry_run:
+            mark_processed(session_file)
         return 0
     
-    should_p, reason = should_process_session(session_file, messages)
+    # Force mode bypasses already_processed check
+    if force:
+        logger.info("🔧 Force mode activated — processing anyway")
+        should_p = True
+        reason = "forced"
+    else:
+        should_p, reason = should_process_session(session_file, messages)
+    
     if not should_p:
         if reason == "already_processed":
             logger.debug(f"Already processed: {session_file.name}")
         else:
             logger.info(f"Skipped: {reason}")
-            mark_processed(session_file)
+            if not dry_run:
+                mark_processed(session_file)
         return 0
     
     insights = extract_insights(messages)
     logger.info(f"💡 Extracted {len(insights)} insights from {len(messages)} messages")
-
-    if write_to_git_memory(session_file, insights):
-        logger.info("✅ Git memory updated successfully")
+    
+    if write_to_git_memory(session_file, insights, dry_run=dry_run):
+        if dry_run:
+            logger.info("✅ Dry-run simulation completed successfully")
+        else:
+            logger.info("✅ Git memory updated successfully")
         return 0
     else:
         logger.error("❌ Failed to write to git memory")
         return 1
 
-if __name__ == "__main__":
-    force_mode = "--force" in sys.argv
+
+def cli_main() -> int:
+    """Command-line interface entry point with argument parsing."""
+    parser = argparse.ArgumentParser(
+        prog="git-memory",
+        description="Automatic AI session memory storage with Git integration"
+    )
+    parser.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be committed without making any changes"
+    )
+    parser.add_argument(
+        "--force", "-f",
+        action="store_true",
+        help="Process the latest session even if already committed"
+    )
+    parser.add_argument(
+        "--verbose", "-v",
+        action="store_true",
+        help="Enable DEBUG level logging"
+    )
+    parser.add_argument(
+        "--version",
+        action="version",
+        version=f"git-memory {__version__}"
+    )
     
-    if force_mode:
-        logger.info("🔧 Force mode activated")
-        session_file = get_latest_session_file()
-        if not session_file:
-            logger.info("ℹ️  No sessions found")
-            sys.exit(0)
-        messages = load_transcript(session_file)
-        if not messages:
-            logger.warning(f"Empty transcript: {session_file.name}")
-            sys.exit(0)
-        
-        insights = extract_insights(messages)
-        logger.info(f"💡 Extracted {len(insights)} insights (force mode)")
-        
-        result = write_to_git_memory(session_file, insights)
-        if result:
-            logger.info("✅ Force mode completed successfully")
-            sys.exit(0)
-        else:
-            logger.error("❌ Force commit failed")
-            sys.exit(1)
-    else:
-        sys.exit(main())
+    args = parser.parse_args()
+    
+    # Set up console handler for CLI output
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_level = logging.DEBUG if args.verbose else logging.INFO
+    console_handler.setLevel(console_level)
+    console_fmt = logging.Formatter('%(levelname)s: %(message)s')
+    console_handler.setFormatter(console_fmt)
+    logger.addHandler(console_handler)
+    
+    if args.verbose:
+        logging.getLogger().setLevel(logging.DEBUG)
+        logger.debug("Debug logging enabled")
+    
+    return main(dry_run=args.dry_run, force=args.force)
+
+
+if __name__ == "__main__":
+    sys.exit(cli_main())

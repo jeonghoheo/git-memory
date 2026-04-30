@@ -156,6 +156,60 @@ launchctl load ~/Library/LaunchAgents/git-memory-auto-commit.plist
 프로그램: python.exe
 인수: -m git_memory.auto_commit
 ```
+---
+## CI/CD 자동 테스트 (GitHub Actions)
+
+저장소에 GitHub Actions workflow가设置되어 있어, 코드 변경 시 자동으로 테스트가 실행됩니다.
+
+### workflow 확인
+
+```bash
+# GitHub Actions 대시보드
+https://github.com/jeonghoheo/git-memory/actions
+
+# 로컬에서 수동 실행
+pytest -v
+
+# linting 수동 실행
+pip install ruff black
+ruff check git_memory/
+black --check git_memory/
+```
+
+### workflow 파일 위치
+
+`.github/workflows/ci.yml`
+
+### workflow 구성
+
+1. **test job**
+   - Python 3.11 설정
+   - `pip install -r requirements.txt`
+   - `pytest -v` 실행
+
+2. **lint job** (선택적)
+   - `ruff check` 실행
+   - `black --check` 실행
+
+### CI 실패 시 해결
+
+```bash
+# 로컬에서 동일 명령어 실행하여 문제 확인
+pytest -v
+
+# lint 에러 수정
+black git_memory/
+ruff check --fix git_memory/
+
+# 다시 커밋 & 푸시
+git add .
+git commit -m "Fix lint errors"
+git push origin main
+```
+
+---
+
+지원
 
 ---
 
