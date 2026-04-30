@@ -1,5 +1,14 @@
 # Git Memory
 
+
+---
+
+**Quick Links:**
+- [🏠 Main README](../README.md) — 빠른 설치 및 개요
+- [📖 Usage Guide](../USAGE.md) — 상세 사용법
+- [🔧 Operations](OPERATIONS.md) — 운영 가이드
+- [🔒 Security](SECURITY.md) — 보안 정책
+
 **자동 세션 메모리 저장소** — AI 대화를 Git으로 자동 저장하고 카테고리별로 분류합니다.
 
 ---
