@@ -19,6 +19,12 @@ Git Memory 변경 이력.
 
 ### Changed
 - `requirements.txt`: pytest added to dev dependencies
+- `requirements.txt`: pytest-cov, mypy, black, ruff added for quality gates
+
+### Security
+- security policy document added (`docs/SECURITY.md`)
+- threat model and risk assessment documented
+- mitigation roadmap (P0-P3) defined
 
 ---
 ## [Unreleased]
