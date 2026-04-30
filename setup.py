@@ -36,7 +36,7 @@ setup(
     },
     entry_points={
         "console_scripts": [
-            "git-memory=git_memory.auto_commit:main",
+            "git-memory=git_memory.auto_commit:cli_main",
         ],
     },
     include_package_data=True,

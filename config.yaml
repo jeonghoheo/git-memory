@@ -1,36 +1,121 @@
-# Hermes Git Memory Configuration
+# Hermes Git Memory Configuration (Expanded v0.2.0-Sprint1)
 
-# 경로 설정
+# ── 경로 설정 ──────────────────────────────────────────────────────────────
 hermes_sessions: ~/hermes/sessions
 git_memory_repo: ~/hermes_git_memory
 log_file: ~/hermes/logs/git_memory.log
 processed_marker: ~/.hermes/last_git_memory_session.txt
 
-# 커밋 임계값
+# ── 커밋 임계값 ────────────────────────────────────────────────────────────
 min_messages: 5          # 최소 메시지 수
 min_duration_seconds: 120  # 최소 세션 시간 (2분)
 
-# 키워드 필터링
+# ── 키워드 dictionary (200+ 키워드) ────────────────────────────────────────
 keywords:
-  wedding:
-    - wedding
-    - venue
-    - 결혼
-    - 예식
-    - 신혼여행
-    - 하객
-    - 웨딩드레스
-    - bouquet
-    - ring
-    - photographer
-    - budget
-    - catering
-    - timeline
-    - 초대
-    - 예물
-  russian:
-    - russian
+  # 개인/일상 (Personal / Daily Life)
+  personal:
+    - meeting
+    - planning
+    - decision
+    - todo
+    - vacation
+    - birthday
+    - appointment
+    - schedule
+    - 회의
+    - 계획
+    - 결정
+    - 할일
+    - 휴가
+    - 생일
+    - 약속
+    - 일정
+    - 커피
+    - 점심
+    - 저녁
+    - 아침
+    - 시간
+    - 날짜
+    - 장소
+    - 사람
+    - 가족
+    - 친구
+    - 동료
+    - 상사
+    - 팀
+    - 모임
+    - 추억
+    - 이야기
+    - 대화
+    - 전화
+    - 메시지
+    - 연락
+
+  # 학습 (Learning & Education)
+  learning:
+    - study
+    - learn
+    - concept
+    - example
+    - tutorial
+    - exercise
+    - practice
+    - lesson
+    - lecture
+    - 공부
+    - 학습
+    - 배우
+    - 개념
+    - 예제
+    - 연습
+    - 설명
+    - 이해
+    - 질문
+    - 답변
+    - 해설
+    - 강의
+    - 수업
+    - 레슨
+    - 단원
+    - 챕터
+    - 문법
+    - 어휘
+    - 발음
+    - 듣기
+    - 말하기
+    - 읽기
+    - 쓰기
+    - 회화
+    - 문장
+    - 단어
+    - 숙어
+    - 관용구
+    - 표현
+    - 동사
+    - 명사
+    - 형용사
+    - 부사
+    - 대명사
+    - 조동사
+    - 문장부호
+    - 억양
+    - 강세
+    - 발음기호
+    - 철자
+    - 어원
+    - 어휘력
+    - 단어장
+    - 암기
+    - 복습
+    - 시험
+    - 테스트
+    - 퀴즈
+    - 과제
+    - 숙제
+    - 리뷰
+    - 정리
     - 러시아어
+    - russian
     - verb
     - aspect
     - нсв
@@ -45,31 +130,117 @@ keywords:
     - vocabulary
     - писать
     - написать
+    - verb aspect
+    -Word boundary matching with word boundaries for precise categorization
 
-# 카테고리 매핑 (키워드 → 카테고리/서브카테고리)
+  # 프로젝트/작업 (Projects & Tasks)
+  projects:
+    - project
+    - task
+    - milestone
+    - deadline
+    - deliverable
+    - feature
+    - 프로젝트
+    - 태스크
+    - 마일스톤
+    - 마감
+    - 결과물
+    - 기능
+    - 요구사항
+    - spec
+    - 문서
+    - 기획
+    - 설계
+    - 구현
+    - 테스트
+    - 배포
+    - 운영
+    - 코드
+    - 프로그램
+    - 스크립트
+    - 함수
+    - 클래스
+    - 모듈
+    - 패키지
+    - 서버
+    - 클라이언트
+    - API
+    - 데이터베이스
+    - 인프라
+    - CI/CD
+    - 버그
+    - 이슈
+    - PR
+    - 리뷰
+    - 커밋
+    - 브랜치
+    - merge
+    - 머지
+    - deploy
+    - 배포
+    - git-memory
+    - git memory
+    - 자동저장
+    - 자동 커밋
+
+# ── 카테고리 매핑 규칙 ────────────────────────────────────────────────────
+# keyword matching uses word boundaries (\b) for accuracy
+# rules are evaluated in order — first match wins
 category_rules:
-  - keywords: [wedding, venue, 예식, 웨딩드레스, ring, photographer, budget]
-    category: wedding
-    subcategory: plans
-  - keywords: [russian, 러시아어, verb, aspect, case, stress, grammar]
-    category: russian
-    subcategory: grammar
-  - keywords: [contact, 사람, 연락, 이름]
-    category: people
-    subcategory: contacts
-  - keywords: [project, 프로젝트, task, 할일]
+  # Personal / Daily Life → personal/memo
+  - keywords: [meeting, planning, decision, todo, vacation, birthday, appointment, schedule,
+               회의, 계획, 결정, 할일, 휴가, 생일, 약속, 일정, 커피, 점심, 저녁, 아침,
+               시간, 날짜, 장소, 사람, 가족, 친구, 동료, 상사, 팀, 모임, 추억, 이야기,
+               대화, 전화, 메시지, 연락]
+    category: personal
+    subcategory: memo
+
+  # Learning & Education → learning/notes
+  - keywords: [study, learn, concept, example, tutorial, exercise, practice, lesson, lecture,
+               공부, 학습, 배우, 개념, 예제, 연습, 설명, 이해, 질문, 답변, 해설, 강의,
+               수업, 레슨, 단원, 챕터, 문법, 어휘, 발음, 듣기, 말하기, 읽기, 쓰기, 회화,
+               문장, 단어, 숙어, 관용구, 표현, 동사, 명사, 형용사, 부사, 대명사, 조동사,
+               문장부호, 억양, 강세, 발음기호, 철자, 어원, 어휘력, 단어장, 암기, 복습,
+               시험, 테스트, 퀴즈, 과제, 숙제, 리뷰, 정리, 러시아어, russian, verb,
+               aspect, нсв, св, imperfective, perfective, case, prepositional, stress,
+               ударение, grammar, vocabulary, писать, написать]
+    category: learning
+    subcategory: notes
+
+  # Projects & Work → projects/tasks
+  - keywords: [project, task, milestone, deadline, deliverable, feature,
+               프로젝트, 태스크, 마일스톤, 마감, 결과물, 기능, 요구사항,
+               spec, 문서, 기획, 설계, 구현, 테스트, 배포, 운영, 코드, 프로그램,
+               스크립트, 함수, 클래스, 모듈, 패키지, 서버, 클라이언트, API,
+               데이터베이스, 인프라, CI/CD, 버그, 이슈, PR, 리뷰, 커밋, 브랜치,
+               merge, 머지, deploy, 배포, git-memory, git memory, 자동저장, 자동 커밋]
     category: projects
     subcategory: tasks
 
-# Git 설정
+  # Wedding-specific → wedding/plans (subset of learning)
+  - keywords: [wedding, venue, 결혼, 예식, 신혼여행, 하객, 웨딩드레스, bouquet,
+               ring, photographer, budget, catering, timeline, 초대, 예물, 접사,
+               신랑, 신부, 사회자, 주례, 축가, 댄스, TOAST, 토스트, ZAGS, zags,
+               marriage, registry, rehearsal, dinner]
+    category: wedding
+    subcategory: plans
+
+# ── Git 설정 ─────────────────────────────────────────────────────────────────
 git:
   user_name: Hermes Agent
   user_email: hermes@localhost
   auto_add: true
   commit_prefix: "Auto-save:"
+  # commit_message_template: "{prefix} {category}/{subcategory} - {insights_count} insights"
 
-# 로깅
+# ── 로깅 ────────────────────────────────────────────────────────────────────
 logging:
   level: INFO  # DEBUG, INFO, WARNING, ERROR
   max_bytes: 10485760  # 10MB
   backup_count: 5
+
+# ── 기타 설정 ───────────────────────────────────────────────────────────────
+# dry_run: false        # TODO: implement in v0.2.0
+# realtime_watch: false # TODO: implement with fswatch in later sprint
+# cache_cleanup: true   # Auto-clean __pycache__ on startup

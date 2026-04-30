@@ -4,304 +4,463 @@
 
 ---
 
-## 시나리오 1: 개인 메모
+## 📦 설치
 
-### 🎯 목표
-회의, 아이디어, 개인적인 생각들을 자동으로 저장하고 나중에 검색
+```bash
+# 저장소 클론
+git clone https://github.com/yourusername/git-memory.git
+cd git-memory
 
-### 설정
+# 개발 모드 설치 (Editable)
+pip install -e .
+
+# 또는 PyPI에서 설치 (배포 후)
+pip install git-memory
+```
+
+
+---
+
+## 🔧 설정
+
+기본 설정 파일: `~/.config/git-memory/config.yaml`
 
 ```yaml
-# ~/.config/git-memory/config.yaml
+hermes_sessions: ~/hermes/sessions      # 세션 파일 경로
+git_memory_repo: ~/git-memory            # 저장소 경로
+log_file: ~/logs/git_memory.log          # 로그 파일
+
 keywords:
-  personal: ["meeting", "회의", "아이디어", "결정", "할일", "todo", "planning"]
+  personal:
+    - "meeting"
+    - "회의"
+    - "아이디어"
+    - "결정"
+    - "planning"
+    - "계획"
+    # ... 200+ 키워드 확장 가능
+  learning:
+    - "study"
+    - "학습"
+    - "공부"
+    - "russian"
+    - "러시아어"
+    # ...
+  projects:
+    - "project"
+    - "프로젝트"
+    - "task"
+    - "태스크"
+    # ...
+  wedding:
+    - "wedding"
+    - "결혼"
+    - "ceremony"
+    - "식"
+    # ...
+
+category_rules:
+  - keywords: ["러시아어", "russian", "grammar", "문법"]
+    category: learning
+    subcategory: russian
+  - keywords: ["결혼", "wedding", "ceremony", "예식"]
+    category: wedding
+    subcategory: ceremony
+
+logging:
+  level: INFO
+  max_bytes: 10485760
+  backup_count: 5
+
+git:
+  auto_add: true
+  commit_prefix: "Auto-save:"
 ```
 
-### 예상 저장 구조
+> ⚠️ **환경변수 오버라이드**: `git-memory_CONFIG` 환경변수로 설정 파일 경로를 변경할 수 있으나,
+> 하이픈(`-`) 포함 환경변수는 bash에서 `export`가 불가능하므로 Python 코드 내에서 설정해야 합니다.
 
-```
-git-memory/personal/
-├── 2024-01-15_meeting.md      # 회의 관련 대화
-├── 2024-01-20_ideas.md        # 아이디어 브레인스토밍
-└── 2024-02-01_decision.md     # 결정사항
-```
+---
 
-### 예제Markdown 파일
+## 🚀 사용법
 
-```markdown
-# personal - 2024-01-15
+### 기본 명령어
 
-**Source:** AI session session_abc123
-**Date:** 2024-01-15
+```bash
+# 도움말
+git-memory --help
 
-### 👤 User
-> 다음 주 월요일 오후 3시에 팀미팅 잡아줘
+# 수동 실행 (가장 최신 세션 처리)
+git-memory
 
-### 🤖 Assistant
-> ✅ 2024-01-15 15:00에 팀 미팅이 예약되었습니다.
+# 상세 로그 출력
+git-memory --verbose
 
-### 👤 User
-> 아, 아직 결정 안 했으니까 할 일에만 메모해줘
+# 이미 커밋된 세션 강제 재처리
+git-memory --force
+
+# 실제 Git 커밋 없이 시뮬레이션 (테스트용)
+git-memory --dry-run
 ```
 
 ---
 
-## 시나리오 2: 언어 학습
+## ⚙️ 옵션 상세 설명
 
-### 🎯 목표
-러시아어, 영어 등 언어 학습 관련 대화를 자동 수집
+### `--dry-run`
+실제 Git 커밋을 생성하지 않고, 어떤 파일이 생성될지, 어떤 메시지가 출력될지 미리 확인합니다.
 
-### 설정
-
-```yaml
-keywords:
-  learning:
-    - "러시아어"
-    - "russian"
-    - "문법"
-    - "grammar"
-    - "단어"
-    - "vocabulary"
-    - "발음"
-    - "pronunciation"
-    - "aspect"
-    - "격"
-  personal: []  # 언어 학습은 별도 카테고리
+```bash
+$ git-memory --dry-run --verbose
+[DRY-RUN] Would write to: personal/2026-04-30_memo.md
+[DRY-RUN] Would commit: "Auto-save: session test_123"
+[DRY-RUN] DRY RUN — no changes made
 ```
 
-**참고:** category_rules로 더 정교한 분류 가능
-```yaml
-category_rules:
-  - keywords: ["러시아어", "russian", "grammar"]
-    category: learning
-    subcategory: russian
-  - keywords: ["英語", "english", "vocabulary"]
-    category: learning
-    subcategory: english
+**사용 사례**:
+- 설정이 올바른지 확인할 때
+- 처음 사용 시 결과 미리보기
+- CI/CD 파이프라인에서 테스트
+
+### `--verbose`
+각 단계(세션 감지, 필터링, 인사이트 추출, 카테고리 분류, Git 작업)의 상세 로그를 출력합니다.
+
+```bash
+$ git-memory --verbose
+[INFO] Scanning ~/hermes/sessions/ for session files...
+[INFO] Latest session: session_20260430_112058.json
+[INFO] Session has 42 messages, duration 125s
+[INFO] Extracted 3 insights from session
+[INFO] Category: personal/memo (matched keywords: meeting, planning)
+[INFO] Writing to: personal/2026-04-30_memo.md
+[INFO] Committed: Auto-save: session 20260430_112058
 ```
 
-### 예상 저장 구조
+### `--force`
+`already_committed()` 체크를 우회하여 이미 Git에 커밋된 세션도 강제 재처리합니다.
+
+```bash
+# 이미 커밋된 세션을 다시 처리
+git-memory --force
+```
+
+**주의**: 동일 세션을 중복 저장할 수 있으므로, `--dry-run`으로 먼저 테스트하세요.
+
+---
+
+## 📁 저장 구조
 
 ```
-git-memory/learning/
-├── 2024-01-10_russian.md
-├── 2024-01-12_english.md
-└── 2024-01-15_grammar.md
+git-memory/
+├── personal/              # 개인 메모 (회의, 아이디어, 결정)
+│   ├── 2026-04-04_memo.md
+│   └── 2026-04-30_meeting.md
+├── learning/              # 언어 학습, 기술 학습
+│   ├── 2026-04-10_russian.md
+│   └── 2026-04-15_grammar.md
+├── projects/              # 프로젝트 작업
+│   ├── 2026-04-20_design.md
+│   └── 2026-04-25_review.md
+├── wedding/               # 웨딩 플래닝
+│   └── 2026-04-30_plans.md
+├── daily/                 # 날짜별 묶음 (선택적)
+└── index.md               # 메타데이터 및 검색 인덱스 (향후)
+```
+
+파일명 형식: `YYYY-MM-DD_<subcategory>.md`
+
+---
+
+## 🔍 작동 원리
+
+1. **세션 감지**: `~/hermes/sessions/` 디렉토리의 최신 세션 파일 찾기
+2. **필터링**: 최소 요구사항 확인
+   - 메시지 2개 이상
+   - 대화 시간 30초 이상 (duration 필드)
+   - 아직 Git에 커밋되지 않은 세션 (`already_committed()` 체크)
+3. **인사이트 추출**: `keywords` 목록 기반으로 중요 메시지 선별
+4. **카테고리 분류**: `category_rules` 순서대로 word boundary 매칭 → 첫 번째 매칭된 카테고리 사용
+5. **Git 저장**: Markdown 파일 생성 및 커밋 (`Auto-save: session <id>`)
+
+---
+
+## 🛠️ 고급 활용
+
+### launchd/cron 자동 실행
+
+```bash
+# 5분 간격 실행 (cron)
+*/5 * * * * cd ~/hermes_git_memory && git-memory --verbose >> ~/logs/git_memory.log 2>&1
+
+# launchd (macOS)
+# ~/Library/LaunchAgents/git-memory-auto-commit.plist 생성
 ```
 
 ### 검색 예제
 
 ```bash
-# "aspect"라는 단어가 포함된 모든 파일 찾기
+# 특정 키워드가 포함된 모든 파일 찾기
 git grep -i "aspect" learning/
 
 # 오늘 학습 내용만
 git log --since="today" --oneline -- learning/
 
-# 특정 단어가 언급된 위치
-git grep -n "instrumental" learning/russian/
+# 카테고리별 커밋 통계
+git log --oneline -- personal/ | wc -l
+git log --since="1 week" --oneline
+
+# 특정 날짜 범위
+git log --since="2026-04-01" --until="2026-04-30" --oneline
 ```
+
+### 이미 커밋된 세션 확인
+
+```bash
+# 어떤 세션이 이미 처리되었는지 확인
+git log --grep="Auto-save:" --oneline | head -20
+
+# 특정 세션 ID로 검색
+git log --grep="session_20260430" --oneline
+```
+
+**필요 조건**: Python 3.11+, Git
 
 ---
 
-## 시나리오 3: 프로젝트 작업
+## 🔧 설정
 
-### 🎯 목표
-프로젝트 결정사항, 할 일, 마일스톤을 Git으로 관리
-
-### 설정
+기본 설정 파일: `~/.config/git-memory/config.yaml`
 
 ```yaml
+hermes_sessions: ~/hermes/sessions      # Hermes 세션 파일 경로
+git_memory_repo: ~/git-memory            # Git 저장소 경로
+log_file: ~/logs/git_memory.log          # 로그 파일
+
 keywords:
-  projects:
-    - "프로젝트"
-    - "project"
-    - "태스크"
-    - "task"
-    - "마일스톤"
-    - "milestone"
-    - "데드라인"
-    - "deadline"
+  personal:
+    - "meeting"
+    - "회의"
+    - "아이디어"
     - "결정"
-    - "decision"
-```
-
-### 예상 저장 구조
-
-```
-git-memory/projects/
-├── 2024-01-20_meeting.md      # 프로젝트 kick-off
-├── 2024-02-01_milestone.md    # 마일스톤 달성
-├── 2024-02-15_decision.md     # 기술 결정
-└── 2024-03-01_review.md       # 회고
-```
-
-### 활용법
-
-1. **주간 회고 작성:**
-```bash
-# 이번 주 프로젝트 관련 모든 커밋 보기
-git log --since="1 week ago" --oneline -- projects/
-
-# 마일스톤별로 정리
-git log --grep="milestone" --oneline
-```
-
-2. **결정사항 추적:**
-```bash
-# "결정"이 포함된 파일만
-git grep -l "결정" projects/
-```
-
-3. **템플릿 활용:**
-`projects/` 디렉토리에 `TEMPLATE.md`를 두고 새 프로젝트 시작 시 참고
-
----
-
-## 시나리오 4: 워드프레스 블로그 연동
-
-### 🎯 목표
-AI가 작성한 블로그 초안을 자동 저장
-
-### 설정
-
-```yaml
-keywords:
-  projects:
-    - "blog"
-    - "블로그"
-    - "포스트"
-    - "post"
-    - "article"
-    - "기사"
-```
-
-### workflow
-
-1. AI에게 블로그 글 초안 작성 요청
-2. 대화가 끝나면 자동으로 `projects/`에 저장
-3. 나중에 `git grep`으로 과거 글 검색
-4. 필요한 부분만 복사해서 워드프레스에 올리기
-
----
-
-## 시나리오 5: 리서치 노트
-
-### 🎯 목표
-인터넷 리서치, 기술 조사 내용 저장
-
-### 설정
-
-```yaml
-keywords:
+    - "planning"
+    - "계획"
+    # ... 200+ 키워드 확장 가능
   learning:
-    - "리서치"
-    - "research"
-    - "조사"
-    - "기술"
-    - "technology"
-    - "트렌드"
-    - "trend"
+    - "study"
+    - "학습"
+    - "공부"
+    - "russian"
+    - "러시아어"
+    # ...
+  projects:
+    - "project"
+    - "프로젝트"
+    - "task"
+    - "태스크"
+    # ...
+  wedding:
+    - "wedding"
+    - "결혼"
+    - "ceremony"
+    - "식"
+    # ...
+
+logging:
+  level: INFO
+  max_bytes: 10485760
+  backup_count: 5
+
+git:
+  auto_add: true
+  commit_prefix: "Auto-save:"
 ```
+
+> ⚠️ **config.yaml 경로 확인**: 기본값은 `~/.config/git-memory/config.yaml`입니다.
+> 환경변수 `git-memory_CONFIG`로 오버라이드 가능하나, 하이픈 포함 환경변수는
+> shell에서 export가 불가능하므로 Python 코드에서 직접 설정해야 합니다.
 
 ---
 
-## 고급 활용
+## 🚀 사용법
 
-### 🔗 Cross-referencing
-
-저장된 파일들끼리 서로 참조하려면:
-
-```markdown
-# 2024-01-15_meeting.md
-
-## 참고 자료
-- [[2024-01-10_russian]]  # Obsidian-style link ( vydav )
-- 관련 결정: `projects/2024-01-20_decision.md`
-```
-
-### 🏷️ 태그 시스템 (수동)
-
-파일 내용에 태그 추가:
-```markdown
-#personal #meeting #important #q1-2024
-```
-
-검색:
-```bash
-git grep "#important" personal/
-```
-
-### 📊 통계
+### 기본 명령어
 
 ```bash
-# 카테고리별 파일 수
-ls personal/ | wc -l
-ls learning/ | wc -l
-ls projects/ | wc -l
+# 도움말
+git-memory --help
 
-# 월별 커밋 수
-git log --since="1 month" --oneline | wc -l
-
-# 가장 활발한 달
-git log --format="%ad" --date=format:"%Y-%m" | sort | uniq -c | sort -nr
-```
-
----
-
-## 자동화 팁
-
-### 1. launchd/cron으로 5분 간격 실행 권장
-
-```bash
-# 수동 테스트 먼저
+# 수동 실행 (가장 최신 세션 처리)
 git-memory
 
-# 문제없으면 자동 등록
-launchctl load ~/Library/LaunchAgents/git-memory-auto-commit.plist
+# 상세 로그 출력
+git-memory --verbose
+
+# 이미 커밋된 세션 강제 재처리
+git-memory --force
+
+# 실제 Git 커밋 없이 시뮬레이션 (테스트용)
+git-memory --dry-run
 ```
 
-### 2. 로그 모니터링
+---
+
+## ⚙️ 옵션 상세 설명
+
+### `--dry-run`
+실제 Git 커밋을 생성하지 않고, 어떤 파일이 생성될지, 어떤 메시지가 출력될지 미리 확인합니다.
 
 ```bash
-tail -f ~/logs/git_memory.log
+$ git-memory --dry-run --verbose
+[DRY-RUN] Would write to: personal/2026-04-30_memo.md
+[DRY-RUN] Would commit: "Auto-save: session test_123"
+[DRY-RUN] DRY RUN — no changes made
 ```
 
-### 3. 저장소 백업 (주기적)
+**사용 사례**:
+- 설정이 올바른지 확인할 때
+- 처음 사용 시 결과 미리보기
+- CI/CD 파이프라인에서 테스트
+
+### `--verbose`
+각 단계(세션 감지, 필터링, 인사이트 추출, 카테고리 분류, Git 작업)의 상세 로그를 출력합니다.
 
 ```bash
-# 매주 백업
-0 2 * * 0 git -C ~/git-memory bundle create ~/backups/git-memory-$(date +%Y%m%d).bundle --all
+$ git-memory --verbose
+[INFO] Scanning ~/hermes/sessions/ for session files...
+[INFO] Latest session: session_20260430_112058.json
+[INFO] Session has 42 messages, duration 125s
+[INFO] Extracted 3 insights from session
+[INFO] Category: personal/memo (matched keywords: meeting, planning)
+[INFO] Writing to: personal/2026-04-30_memo.md
+[INFO] Committed: Auto-save: session 20260430_112058
+```
+
+### `--force`
+`already_committed()` 체크를 우회하여 이미 Git에 커밋된 세션도 강제로 재처리합니다.
+
+```bash
+# 이미 커밋된 세션을 다시 처리
+git-memory --force
+```
+
+**주의**: 동일 세션을 중복 저장할 수 있으므로, `--dry-run`으로 먼저 테스트하세요.
+
+---
+
+## 📁 저장 구조
+
+```
+git-memory/
+├── personal/              # 개인 메모 (회의, 아이디어, 결정)
+│   ├── 2026-04-04_memo.md
+│   └── 2026-04-30_meeting.md
+├── learning/              # 언어 학습, 기술 학습
+│   ├── 2026-04-10_russian.md
+│   └── 2026-04-15_grammar.md
+├── projects/              # 프로젝트 작업
+│   ├── 2026-04-20_design.md
+│   └── 2026-04-25_review.md
+├── wedding/               # 웨딩 플래닝
+│   └── 2026-04-30_plans.md
+├── daily/                 # 날짜별 묶음 (선택적)
+└── index.md               # 메타데이터 및 검색 인덱스 (향후)
+```
+
+파일명 형식: `YYYY-MM-DD_<subcategory>.md`
+
+---
+
+## 🔍 작동 원리
+
+1. **세션 감지**: `~/hermes/sessions/` 디렉토리의 최신 세션 파일 찾기
+2. **필터링**: 최소 요구사항 확인
+   - 메시지 2개 이상
+   - 대화 시간 30초 이상 (duration 필드)
+   - 아직 Git에 커밋되지 않은 세션 (`already_committed()` 체크)
+3. **인사이트 추출**: `keywords` 목록 기반으로 중요 메시지 선별
+4. **카테고리 분류**: `category_rules` 순서대로 매칭 → 첫 번째 매칭된 카테고리 사용
+5. **Git 저장**: Markdown 파일 생성 및 커밋 (`Auto-save: session <id>`)
+
+---
+
+## 🛠️ 고급 활용
+
+### launchd/cron 자동 실행
+
+```bash
+# 5분 간격 실행 (cron)
+*/5 * * * * cd ~/hermes_git_memory && git-memory --verbose >> ~/logs/git_memory.log 2>&1
+
+# launchd (macOS)
+# ~/Library/LaunchAgents/git-memory-auto-commit.plist 생성
+```
+
+### 검색 예제
+
+```bash
+# 특정 키워드가 포함된 모든 파일 찾기
+git grep -i "aspect" learning/
+
+# 오늘 학습 내용만
+git log --since="today" --oneline -- learning/
+
+# 카테고리별 커밋 통계
+git log --oneline -- personal/ | wc -l
+git log --since="1 week" --oneline
+
+# 특정 날짜 범위
+git log --since="2026-04-01" --until="2026-04-30" --oneline
+```
+
+### 이미 커밋된 세션 확인
+
+```bash
+# 어떤 세션이 이미 처리되었는지 확인
+git log --grep="Auto-save:" --oneline | head -20
+
+# 특정 세션 ID로 검색
+git log --grep="session_20260430" --oneline
 ```
 
 ---
 
-## 팁 & 트릭
+## ❓ FAQ
 
-1. **키워드 충분히 넣기**: 너무 짧은 대화는 저장되지 않음 (30초/2메시지 조건)
-2. **config.yaml 자주 업데이트**: 새로운 주제 생길 때마다 키워드 추가
-3. **수동 분류**: 잘못 분류된 파일은 `mv`로 이동 후 `git commit`
-4. **Obsidian 연동**: `git-memory` 디렉토리를 Obsidian Vault로 열면 그래프 뷰 가능
-5. **검색 최적화**: `git grep --color=always "키워드" | less -R`
+**Q: `git-memory` 명령어를 찾을 수 없다고 나옵니다.**
+→ `pip install -e .`이 성공했는지 확인하세요. `which git-memory`로 경로 확인.
+
+**Q: 설정 파일을 어디에 둬야 하나요?**
+→ 기본값: `~/.config/git-memory/config.yaml`. 환경변수로 오버라이드 가능.
+
+**Q: 카테고리가 `uncategorized`로만 나옵니다.**
+→ `config.yaml`의 `keywords`가 올바른지, YAML syntax에 오류가 없는지 확인하세요.
+BUG-003 수정으로 word boundary 매칭이 적용되었습니다.
+
+**Q: `--dry-run` 실행 시 출력이 안 보입니다.**
+→ `--verbose`와 함께 사용하세요: `git-memory --dry-run --verbose`.
+로그 핸들러 구성이 올바른지 확인하세요.
+
+**Q: 짧은 세션(7개 메시지)이 처리되지 않습니다.**
+→ 기본 필터: 2개 메시지 이상, 30초 이상 대화.
+`--force` 플래그로 우회 가능하나, 너무 짧은 세션은 정보 가치가 낮을 수 있습니다.
+
+**Q: 이미 커밋된 세션을 다시 처리하면 어떻게 되나요?**
+→ `--force` 없이는 건너뜁니다. `--force` 시 동일 파일이 덮어쓰기되고
+새 커밋이 생성됩니다. 중복 위험이 있으므로 주의하세요.
 
 ---
 
-## 워크플로우 예시: 하루 일과
+## 📊 troubleshoting
 
-```
-09:00  아침 회의 → AI에게 요약 요청 → 자동 저장 (personal)
-10:30  러시아어 공부 → AI와 대화 → 자동 저장 (learning)
-14:00  프로젝트 설계 → AI 피드백 → 자동 저장 (projects)
-18:00  하루 마무리 → git log로 오늘 작업 리뷰
-```
+| 증상 | 원인 | 해결 |
+|------|------|------|
+| 명령어 not found | pip安装 안됨 | `pip install -e .` |
+| YAML syntax error | config 파일 형식 오류 | `yamllint`로 검증 |
+| 세션 거절 | too_short (30초 미만) | `--force` 또는 duration 체크 완화 논의 |
+| 카테고리 wrong | keyword 누락/순서 문제 | `config.yaml` keywords 확장 |
+| Git 커밋 안됨 | GIT_MEMORY 경로 권한 문제 | `chmod -R u+w ~/git-memory` |
 
----
-
-## 문제가 있나요?
-
-- **HELP.md** — 명령어, 설정, FAQ
-- **OPERATIONS.md** — 트러블슈팅, 모니터링
-- **GitHub Issues** — 버그 리포트
+자세한 내용은 `docs/OPERATIONS.md`를 참고하세요.
 
 ---
 

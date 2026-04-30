@@ -5,18 +5,34 @@
 ### `git-memory`
 AI 세션을 자동 저장하는 메인 명령어.
 
+#### 사용법
 ```bash
-# 수동 실행 (한 번만)
+git-memory [OPTIONS]
+```
+
+#### 옵션
+| 옵션 | 설명 | 기본값 |
+|------|------|--------|
+| `--dry-run` | 실제 Git 커밋 없이 시뮬레이션 | `False` |
+| `--verbose` | 상세 로그 출력 (DEBUG 레벨) | `False` |
+| `--force` | 이미 커밋된 세션 강제 재처리 | `False` |
+| `--config` | 설정 파일 경로 출력 | - |
+| `--version` | 버전 정보 출력 | - |
+| `--help` | 도움말 출력 | - |
+
+#### 예시
+```bash
+# 기본 실행 (가장 최신 세션 처리)
 git-memory
 
-# 설정 파일 경로 확인
-git-memory --config
+# 상세 로그와 함께 실행
+git-memory --verbose
 
-# 버전 확인
-git-memory --version
+# 이미 커밋된 세션 다시 처리
+git-memory --force
 
-# 도움말
-git-memory --help
+# 테스트: 실제 커밋 없이 확인
+git-memory --dry-run --verbose
 ```
 
 **환경변수:**
@@ -156,6 +172,60 @@ launchctl load ~/Library/LaunchAgents/git-memory-auto-commit.plist
 프로그램: python.exe
 인수: -m git_memory.auto_commit
 ```
+---
+## CI/CD 자동 테스트 (GitHub Actions)
+
+저장소에 GitHub Actions workflow가设置되어 있어, 코드 변경 시 자동으로 테스트가 실행됩니다.
+
+### workflow 확인
+
+```bash
+# GitHub Actions 대시보드
+https://github.com/jeonghoheo/git-memory/actions
+
+# 로컬에서 수동 실행
+pytest -v
+
+# linting 수동 실행
+pip install ruff black
+ruff check git_memory/
+black --check git_memory/
+```
+
+### workflow 파일 위치
+
+`.github/workflows/ci.yml`
+
+### workflow 구성
+
+1. **test job**
+   - Python 3.11 설정
+   - `pip install -r requirements.txt`
+   - `pytest -v` 실행
+
+2. **lint job** (선택적)
+   - `ruff check` 실행
+   - `black --check` 실행
+
+### CI 실패 시 해결
+
+```bash
+# 로컬에서 동일 명령어 실행하여 문제 확인
+pytest -v
+
+# lint 에러 수정
+black git_memory/
+ruff check --fix git_memory/
+
+# 다시 커밋 & 푸시
+git add .
+git commit -m "Fix lint errors"
+git push origin main
+```
+
+---
+
+지원
 
 ---
 
