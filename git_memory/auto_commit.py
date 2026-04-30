@@ -166,13 +166,7 @@ for cat_name, kw_list in CONFIG.get("keywords", {}).items():
         ALL_KEYWORDS.extend([kw.lower() for kw in kw_list])
 IMPORTANT_KEYWORDS = PERSONAL_KEYWORDS + LEARNING_KEYWORDS + ALL_KEYWORDS
 
-CATEGORY_RULES = CONFIG.get(
-    "category_rules",
-    [
-        {"keywords": PERSONAL_KEYWORDS, "category": "personal", "subcategory": "memo"},
-        {"keywords": LEARNING_KEYWORDS, "category": "learning", "subcategory": "notes"},
-    ],
-)
+CATEGORY_RULES = CONFIG.get("category_rules", [])
 
 # ── 로깅 설정 ─────────────────────────────────────────────────────────────────
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
@@ -261,7 +255,23 @@ def should_process_session(
 
 def categorize(content: str) -> Tuple[str, str]:
     cl = content.lower()
-    for rule in CATEGORY_RULES:
+    # Load category_rules from CONFIG with inline fallback
+    category_rules = CONFIG.get(
+        "category_rules",
+        [
+            {
+                "keywords": CONFIG.get("keywords", {}).get("personal", []),
+                "category": "personal",
+                "subcategory": "memo",
+            },
+            {
+                "keywords": CONFIG.get("keywords", {}).get("learning", []),
+                "category": "learning",
+                "subcategory": "notes",
+            },
+        ],
+    )
+    for rule in category_rules:
         keywords = rule.get("keywords", [])
         if any(re.search(r"\b" + re.escape(kw) + r"\b", cl) for kw in keywords):
             return rule.get("category", "daily"), rule.get("subcategory", "notes")
