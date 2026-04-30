@@ -7,3 +7,4 @@ pytest-cov>=4.0  # Test coverage reporting
 mypy>=1.0        # Static type checking
 black>=23.0      # Code formatting
 ruff>=0.1.0      # Fast linter
+types-PyYAML>=6.0.12  # Type stubs for PyYAML (mypy)

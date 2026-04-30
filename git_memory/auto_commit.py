@@ -22,7 +22,6 @@ import logging
 import subprocess
 import sys
 import argparse
-import time
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -130,8 +129,8 @@ def should_process_session(session_file: Path, messages: List[Dict]) -> Tuple[bo
         try:
             start = datetime.fromisoformat(messages[0].get("timestamp", ""))
             end = datetime.fromisoformat(messages[-1].get("timestamp", ""))
-            duration = (end - start).total_seconds()
-        except:
+            duration = int((end - start).total_seconds())  # Convert to int for type compatibility
+        except Exception:
             pass
     
     if msgs < 2:
@@ -210,7 +209,7 @@ def is_processed(session_file: Path) -> bool:
         return False
     try:
         return PROCESSED_MARKER.read_text().strip() == session_file.name
-    except:
+    except Exception:
         return False
 
 def write_to_git_memory(session_file: Path, insights: List[Dict], dry_run: bool = False) -> bool:
