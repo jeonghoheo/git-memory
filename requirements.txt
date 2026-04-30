@@ -1,0 +1,6 @@
+# Core dependencies
+PyYAML>=6.0
+
+# Dev dependencies (optional)
+# pytest>=7.0
+# black>=23.0
