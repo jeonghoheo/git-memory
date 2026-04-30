@@ -21,7 +21,6 @@ import json
 import logging
 import subprocess
 import sys
-import argparse
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
@@ -48,12 +47,12 @@ def load_config() -> Dict[str, Any]:
         "logging": {"level": "INFO", "max_bytes": 10485760, "backup_count": 5},
     }
 
-CONFIG = load_config()
+CONFIG: Dict[str, Any] = load_config()
 
-HERMES_SESSIONS = Path(CONFIG.get("hermes_sessions", Path.cwd() / "sessions")).expanduser()
-GIT_MEMORY = Path(CONFIG.get("git_memory_repo", Path.home() / "git-memory")).expanduser()
-LOG_FILE = Path(CONFIG.get("log_file", Path.home() / "logs" / "git_memory.log")).expanduser()
-PROCESSED_MARKER = Path(CONFIG.get("processed_marker", Path.home() / ".git-memory" / "last_processed.txt")).expanduser()
+HERMES_SESSIONS: Path = Path(CONFIG.get("hermes_sessions", Path.cwd() / "sessions")).expanduser()
+GIT_MEMORY: Path = Path(CONFIG.get("git_memory_repo", Path.home() / "git-memory")).expanduser()
+LOG_FILE: Path = Path(CONFIG.get("log_file", Path.home() / "logs" / "git_memory.log")).expanduser()
+PROCESSED_MARKER: Path = Path(CONFIG.get("processed_marker", Path.home() / ".git-memory" / "last_processed.txt")).expanduser()
 
 # Keywords from config — aggregate ALL categories for importance detection
 PERSONAL_KEYWORDS = [kw.lower() for kw in CONFIG.get("keywords", {}).get("personal", [])]
@@ -72,7 +71,7 @@ CATEGORY_RULES = CONFIG.get("category_rules", [
 
 # ── 로깅 설정 ─────────────────────────────────────────────────────────────────
 LOG_FILE.parent.mkdir(parents=True, exist_ok=True)
-log_level = getattr(logging, CONFIG["logging"].get("level", "INFO"))
+log_level = getattr(logging, CONFIG.get("logging", {}).get("level", "INFO"))
 logging.basicConfig(
     level=log_level,
     format="%(asctime)s [%(levelname)s] %(message)s",
@@ -80,8 +79,8 @@ logging.basicConfig(
     handlers=[
         RotatingFileHandler(
             LOG_FILE,
-            maxBytes=CONFIG["logging"].get("max_bytes", 10485760),
-            backupCount=CONFIG["logging"].get("backup_count", 5)
+            maxBytes=CONFIG.get("logging", {}).get("max_bytes", 10485760),
+            backupCount=CONFIG.get("logging", {}).get("backup_count", 5)
         )
     ]
 )
