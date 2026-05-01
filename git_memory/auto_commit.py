@@ -257,6 +257,13 @@ def load_transcript(session_file: Path) -> List[Dict]:
 def should_process_session(
     session_file: Path, messages: List[Dict]
 ) -> Tuple[bool, str]:
+    # 1순위: 이미 커밋된 세션인지 먼저 확인 (가장 빠른 거절)
+    session_id = session_file.stem
+    if session_id.startswith("session_"):
+        session_id = session_id[8:]
+    if already_committed(session_id):
+        return False, "already_processed"
+
     msgs = len(messages)
     duration = 0
     if messages:
@@ -273,12 +280,6 @@ def should_process_session(
         return False, "too_few_messages"
     if duration < 30:
         return False, "too_short"
-
-    session_id = session_file.stem
-    if session_id.startswith("session_"):
-        session_id = session_id[8:]
-    if already_committed(session_id):
-        return False, "already_processed"
 
     return True, "ok"
 
@@ -368,7 +369,7 @@ def is_processed(session_file: Path) -> bool:
     if not PROCESSED_MARKER.exists():
         return False
     try:
-        return PROCESSED_MARKER.read_text().strip() == session_file.name
+        return PROCESSED_MARKER.read_text().strip() == session_file.stem
     except Exception:
         return False
 

@@ -60,6 +60,28 @@
 3. **GitHub Actions CI 완성** (테스트, lint, type-check) ✅
 4. **PyPI 배포 준비** (pyproject.toml 마이그레이션)
 
+## ✅ Sprint 2 완료 (2026-05-01)
+
+### 테스트 현황
+- **전체**: 30 passed, 1 skipped (96.9%)
+- **Skipped 테스트**: `test_multiple_mixed_messages`
+  - 원인: "Known issue: extract_insights handles study keyword variant"
+  - 의도적 skip (알려진 이슈) → 문서화 완료
+
+### 코드 품질
+- ✅ **ruff**: All checks passed!
+- ⚠️ **mypy**: 미설치 (requirements.txt에 추가 필요)
+- ⚠️ **black**: 미설치 (formatting 수동 확인)
+
+### CI/CD
+- ✅ GitHub Actions 워크플로우 작동 중
+- ✅ 최신 커밋: `9157d92 fix(category_rules): resolve keyword conflicts and finalize CI`
+
+### 남은 작업
+- [ ] mypy/black 설치 및 CI에 통합
+- [ ] 테스트 커버리지 100% 달성 (skip된 테스트 해결)
+- [ ] PyPI 패키지 등록 준비
+
 ---
 
 ## 🔐 보안 강화 작업 (Sprint 3 제안)

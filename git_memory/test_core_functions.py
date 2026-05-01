@@ -144,9 +144,6 @@ class TestProcessedFlag:
         assert is_processed(Path("dummy.session")) is False
 
     @patch("git_memory.auto_commit.PROCESSED_MARKER")
-    @pytest.mark.skip(
-        reason="Bug #002: is_processed marker parsing - needs investigation"
-    )
     def test_true_when_marker_matches(self, mock_marker):
         mock_marker.exists.return_value = True
         mock_marker.read_text.return_value = "session_123"
@@ -202,9 +199,6 @@ class TestShouldProcessSession:
 
     @patch("git_memory.auto_commit.already_committed", return_value=True)
     @patch("git_memory.auto_commit.is_processed", return_value=False)
-    @pytest.mark.skip(
-        reason="Bug #003: should_process_session ordering - already_processed check"
-    )
     def test_skips_if_already_committed(self, mock_is_proc, mock_already, tmp_path):
         session_file = tmp_path / "session_123.json"
         msgs = [self._mk_msg("hello"), self._mk_msg("world")]
